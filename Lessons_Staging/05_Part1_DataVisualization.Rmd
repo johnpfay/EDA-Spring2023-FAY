@@ -1,17 +1,12 @@
 ---
 title: "5: Part 1 - Data Visualization Basics"
 author: "Environmental Data Analytics | John Fay and Luana Lima | Developed by Kateri Salk"
-date: "Fall 2022"
+date: "Fall 2023"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
   chunk_output_type: console
 ---
-
-```{r setup, include=FALSE}
-#install.packages('formatR')
-knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
-```
 
 ## Objectives
 1. Perform simple data visualizations in the R package `ggplot`
@@ -23,33 +18,55 @@ Effective data visualization depends on purposeful choices about graph types. Th
 
 ## Set Up
 
-```{r, message = FALSE, warning = FALSE}
-getwd()
+```{r Set up, message = FALSE, warning = FALSE}
+#Import libraries
 library(tidyverse)
+library(lubridate)
+library(here)
 #install.packages("ggridges")
 library(ggridges)
 
+#Read in datasets
 PeterPaul.chem.nutrients <- 
-  read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
-PeterPaul.chem.nutrients.gathered <-
-  read.csv("./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv", stringsAsFactors = TRUE)
-EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", stringsAsFactors = TRUE)
+  read.csv(
+    here("Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"),
+    stringsAsFactors = TRUE)
 
-EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
-PeterPaul.chem.nutrients$sampledate <- as.Date(PeterPaul.chem.nutrients$sampledate, format = "%Y-%m-%d")
-PeterPaul.chem.nutrients.gathered$sampledate <- as.Date(PeterPaul.chem.nutrients.gathered$sampledate, format = "%Y-%m-%d")
+PeterPaul.chem.nutrients.gathered <-
+    read.csv(
+    here("Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv"),
+    stringsAsFactors = TRUE)
+           
+EPAair <- 
+  read.csv(
+    here("Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv"),
+    stringsAsFactors = TRUE)
+
+#Convert dates
+EPAair$Date <- ymd(EPAair$Date)
+PeterPaul.chem.nutrients$sampledate <- ymd(PeterPaul.chem.nutrients$sampledate)
+PeterPaul.chem.nutrients.gathered$sampledate <- ymd(PeterPaul.chem.nutrients.gathered$sampledate)
 
 ```
 
+
 ## ggplot
 
-ggplot, called from the package `ggplot2`, is a graphing and image generation tool in R. This package is part of tidyverse. While base R has graphing capabilities, ggplot has the capacity for a wider range and more sophisticated options for graphing. 
-ggplot has only a few rules: 
+`ggplot`, called from the package `ggplot2`, is a graphing and image generation tool in R. This package is part of tidyverse. While base R has graphing capabilities, ggplot has the capacity for a wider range and more sophisticated options for graphing. 
 
-* The first line of ggplot code always starts with `ggplot()`
-* A data frame must be specified within the `ggplot()` function. Additional datasets can be specified in subsequent layers.
-* Aesthetics must be specified, most commonly x and y variables but including others. Aesthetics can be specified in the `ggplot()` function or in subsequent layers.
-* Additional layers must be specified to fill the plot. 
+`ggplot` has only a few key rules: 
+
+ * The first line of ggplot code always starts with `ggplot()`. Think of this as creating the canvas for your plot.
+   * A data frame containing the data to be plotted is typically specified within the `ggplot()` function.
+   * Additional datasets can be specified in subsequent layers or "geoms".
+   * Aesthetics, including which columns are included in the plot, can also be specified in the `ggplot()` function
+   
+ * Following the `ggplot()` function, one or more layers, or `geoms` are added to your plot. These specify the type of plot that will be added to your plotting canvas (e.g., histogram, bar, scatter).
+   * Additional aesthetics can be provided with each geom that are specific to how that particular layer will display the data.
+   * You can also specify a different dataframe with each geom to be the source of the data to be plotted 
+   
+ * There are other elements that you can add to your ggplot that we will discuss later. 
+ 
 
 ### Geoms
 
@@ -83,6 +100,9 @@ Here are some commonly used aesthetic types that can be manipulated in ggplot:
 
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 # Scatterplot
+ggplot() +
+  geom_point(data=EPAair,aes(x = Date, y = Ozone))
+
 ggplot(EPAair, aes(x = Date, y = Ozone)) + 
   geom_point()
 
